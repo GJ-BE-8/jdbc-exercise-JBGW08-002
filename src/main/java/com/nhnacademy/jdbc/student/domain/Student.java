@@ -14,11 +14,16 @@ public class Student {
     private final LocalDateTime createdAt;
 
     public Student(String id, String name, GENDER gender, Integer age) {
+        this(id, name, gender, age, LocalDateTime.now());
+    }
+
+
+    public Student(String id, String name, GENDER gender, Integer age,LocalDateTime createdAt) {
         this.id = id;
         this.name = name;
         this.gender = gender;
         this.age = age;
-        this.createdAt = LocalDateTime.now();
+        this.createdAt = createdAt;
     }
 
     public String getId() {
