@@ -123,13 +123,60 @@ public class StudentRepositoryImpl implements StudentRepository {
     @Override
     public long totalCount(Connection connection) {
         //todo#4 totalCount 구현
-        return 0l;
+        String sql = "select count(*) from jdbc_students";
+        ResultSet rs = null;
+        try (PreparedStatement statement = connection.prepareStatement(sql)) {
+            rs = statement.executeQuery();
+            if (rs.next()) {
+                return rs.getInt(1);
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        } finally {
+            try {
+                if (Objects.nonNull(rs)) {
+                    rs.close();
+                }
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
+        }
+        return 0;
     }
 
     @Override
     public Page<Student> findAll(Connection connection, int page, int pageSize) {
         //todo#5 페이징 처리 구현
-        return null;
+        int offset = (page - 1) * pageSize;
+        int limit = pageSize;
+        String sql = "select * from jdbc_students order by id desc limit ?,?";
+        ResultSet rs = null;
+        List<Student> studentList = new ArrayList<>(pageSize);
+        try (PreparedStatement statement = connection.prepareStatement(sql)) {
+            statement.setInt(1, offset);
+            statement.setInt(2, pageSize);
+            rs = statement.executeQuery();
+            while (rs.next()) {
+                studentList.add(
+                        new Student(
+                                rs.getString("id"),
+                                rs.getString("name"),
+                                Student.GENDER.valueOf(rs.getString("gender")),
+                                rs.getInt("age"),
+                                rs.getTimestamp("created_at").toLocalDateTime()
+                        )
+                );
+            }
+            long total = 0l;
+            if (!studentList.isEmpty()) {
+                total = totalCount(connection);
+            }
+
+            return new Page<>(studentList,total);
+
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
     }
 
 }
