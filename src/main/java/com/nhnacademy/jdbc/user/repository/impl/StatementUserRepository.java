@@ -38,8 +38,8 @@ public class StatementUserRepository implements UserRepository {
     public Optional<User> findById(String userId) {
         //#todo#2-아이디로 User 조회
         String sql = String.format("select user_id, user_name, user_password from jdbc_users where user_id='%s'", userId);
-
-        try(Connection connection = DbUtils.getConnection();
+        Connection connection = DbUtils.getConnection();
+        try(
             Statement statement = connection.createStatement();
             ResultSet rs = statement.executeQuery(sql);
         ) {
